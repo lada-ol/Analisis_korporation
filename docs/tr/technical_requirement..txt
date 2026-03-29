@@ -1,0 +1,31 @@
+ТЕХНИЧЕСКОЕ ЗАДАНИЕ ДЛЯ DATA ENGINEERING
+
+Цель создания витрины: Построить аналитическую витрину данных
+company_readiness_for_pro для оценки потенциала продаж подписки "Pro"
+среди существующих B2B-клиентов. Витрина содержит интегральные показатели
+готовности компаний на основе активности в LMS, стабильности платежей
+и среднего чека, и используется для вероятностного прогноза продаж.
+
+Источники данных: 01_crm_companies.csv (справочник компаний),
+02_crm_transactions.csv (сделки CRM), 03_lms_events.csv (события LMS),
+05_finance_payments.csv (платежи из 1С). Все источники связаны через
+company_id.
+
+Требования к детализации и периоду: Уровень детализации - одна строка
+на компанию. Активность в LMS анализируется за 90 дней до 31.03.2025.
+Платежи и сделки - за всю историю компании.
+
+Бизнес-правила: is_active_lms = 1 при наличии login за 90 дней.
+payment_stability = успешные_платежи / все_платежи (только payment_type='payment').
+avg_check = среднее total_amount по closed_won сделкам.
+readiness_score = is_active_lms×0.3 + payment_stability×0.4 + (avg_check/max_avg_check)×0.3.
+
+Формат выдачи: CSV, кодировка UTF-8, разделитель - запятая.
+Имя файла: company_readiness_for_pro.csv. Поля: company_id, company_name,
+industry, region, employee_count, status, is_active_lms, login_count_90d,
+payment_stability, total_payments_count, avg_check, total_revenue,
+readiness_score, ready_for_pro.
+
+Периодичность обновления: Еженедельно по понедельникам в 09:00 (режим
+полной перестройки). Частота обусловлена еженедельным обновлением
+CRM-данных.
